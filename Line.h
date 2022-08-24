@@ -6,12 +6,12 @@
 class Line
 {
 public:
-    Line(Point p1, Point p2);
+    Line(Point point1, Point point2);
     Line(double k, double b);
-    Line(Point p, double k);
+    Line(Point point, double k);
 
-    friend bool operator==(const Line l1, const Line l2);
-    friend bool operator!=(const Line l1, const Line l2);
+    friend bool operator==(const Line line1, const Line line2);
+    friend bool operator!=(const Line line1, const Line line2);
 
 private:
     double k;

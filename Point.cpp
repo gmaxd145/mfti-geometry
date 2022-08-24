@@ -1,11 +1,11 @@
 #include "Point.h"
 
-bool operator==(const Point p1, const Point p2)
+bool operator==(const Point point1, const Point point2)
 {
-    return (p1.x == p2.x) && (p1.y == p2.y);
+    return (point1.x == point2.x) && (point1.y == point2.y);
 }
 
-bool operator!=(const Point p1, const Point p2)
+bool operator!=(const Point point1, const Point point2)
 {
-    return !(p1 == p2);
+    return !(point1 == point2);
 }

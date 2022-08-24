@@ -6,8 +6,8 @@ struct Point {
     double x;
     double y;
 
-    friend bool operator==(const Point p1, const Point p2);
-    friend bool operator!=(const Point p1, const Point p2);
+    friend bool operator==(const Point point1, const Point point2);
+    friend bool operator!=(const Point point1, const Point point2);
 };
 
 
