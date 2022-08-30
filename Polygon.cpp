@@ -90,3 +90,19 @@ bool Polygon::operator==(const Shape &another)
     }
     return true;
 }
+
+bool Polygon::isCongruentTo(const Shape &another)
+{
+    return (*this == another);
+}
+
+bool Polygon::isSimilarTo(const Shape &another)
+{
+}
+
+bool Polygon::containsPoint(Point point)
+{
+    // Принадлежность точки выпуклому или звёздному N-угольнику может быть определена при помощи двоичного поиска за время O(log N), при затрате O(N) памяти и O(N) времени на предварительную обработку.
+}
+
+
