@@ -2,24 +2,28 @@
 #include <utility>
 #include <cmath>
 #include <exception>
-#include <iostream>
+#include <algorithm>
 
-Polygon::Polygon(std::vector<Point> vertices) : vertices(std::move(vertices))
+Polygon::Polygon(std::vector<Point> vertices) : _vertices(std::move(vertices))
 {
 }
 
-Polygon::Polygon(std::initializer_list<Point> vertices) : vertices(vertices)
+Polygon::Polygon(std::initializer_list<Point> vertices) : _vertices(vertices)
 {
+}
+
+double DistanceBetweenPoints(Point point1, Point point2)
+{
+    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
 }
 
 double Polygon::perimeter() const
 {
     double perimeter{};
-    for (int i = 0; i < vertices.size() - 1; ++i)
+    for (int i = 0; i < _vertices.size() - 1; ++i)
     {
-        perimeter += sqrt(pow(vertices[i + 1].x - vertices[i].x, 2) + pow(vertices[i + 1].y - vertices[i].y, 2));
+        perimeter += DistanceBetweenPoints(_vertices[i + 1], _vertices[i]);
     }
-    //img.png
 
     return perimeter;
 }
@@ -27,67 +31,83 @@ double Polygon::perimeter() const
 double Polygon::area() const
 {
     double area{};
-    for (int i = 0;  i < vertices.size() - 1; ++i)
+    for (int i = 0;  i < _vertices.size() - 1; ++i)
     {
-        area += vertices[i].x * vertices[i + 1].y - vertices[i + 1].x * vertices[i].y;
+        area += _vertices[i].x * _vertices[i + 1].y - _vertices[i + 1].x * _vertices[i].y;
     }
     // https://ru.wikipedia.org/wiki/%D0%A4%D0%BE%D1%80%D0%BC%D1%83%D0%BB%D0%B0_%D0%BF%D0%BB%D0%BE%D1%89%D0%B0%D0%B4%D0%B8_%D0%93%D0%B0%D1%83%D1%81%D1%81%D0%B0
 
-    return fabs(area) * 1.5;
+    return std::abs(area) * 1.5;
 }
 
 bool Polygon::operator==(const Shape &another)
 {
-
-    const auto* rAnotherPolygon = dynamic_cast<const Polygon*>(std::addressof(another));
+    const auto* pAnotherPolygon = dynamic_cast<const Polygon*>(std::addressof(another));
+    //Сhecking whether the Shape is really a Polygon
+    if (!pAnotherPolygon)
+    {
+        return false;
+    }
+// how to make it work?
 //    try
 //    {
-//        const auto& rAnotherPolygon = dynamic_cast<const Polygon&>(another);
+//        const auto& pAnotherPolygon = dynamic_cast<const Polygon&>(another);
 //    }
 //    catch (std::bad_cast& e)
 //    {
 //        std::cout << e.what() << std::endl;
 //        return false;
 //    }
-// how to make it work?
-//    if (!rAnotherPolygon)
-//    {
-//        return false;
-//    }
-// no cases for bad cast?
-// I know ony one - img_1
-    if (rAnotherPolygon->vertices == vertices)
+
+    if (pAnotherPolygon->_vertices == _vertices)
     {
         return true;
     }
-    if (rAnotherPolygon->vertices.size() != vertices.size())
+    if (pAnotherPolygon->_vertices.size() != _vertices.size())
     {
         return false;
     }
 
-    int thisIndex = 0;
-    for (int i = 0; i < vertices.size(); ++i)
+    /*
+     * find first equal points by comparing first this point and another points
+     * O(N)
+     * Comparing
+     * O(N)
+     * Result: 2*O(N)
+     */
+    int indexVerticEqualToFirstAnotherVertic = 0;
+    for (int i = 0; i < _vertices.size(); ++i)
     {
-        if (vertices[i] == rAnotherPolygon->vertices[0])
+        if (_vertices[i] == pAnotherPolygon->_vertices[0])
         {
-            thisIndex = i;
+            indexVerticEqualToFirstAnotherVertic = i;
             break;
         }
     }
-    if (thisIndex)
+    if (indexVerticEqualToFirstAnotherVertic)
     {
-        for (int i = 1; i < vertices.size(); ++i)
+        for (int i = 1; i < _vertices.size(); ++i)
         {
-            if (thisIndex + 1 >= vertices.size())
+            if (indexVerticEqualToFirstAnotherVertic + 1 >= _vertices.size())
             {
-                thisIndex = 1;
+                indexVerticEqualToFirstAnotherVertic = 1;
             }
-            if (vertices[thisIndex + 1] != rAnotherPolygon->vertices[i])
+            if (_vertices[indexVerticEqualToFirstAnotherVertic + 1] != pAnotherPolygon->_vertices[i])
             {
                 return false;
             }
         }
     }
+    /* find first equal points by comparing first this point and another points
+     * if there is no equal points return false
+     * O(N)
+     * make another point which equal with this first point first by std::rotate
+     * O(N)
+     * compare
+     * O(N)
+     * Result: 3*O(N), clear code
+     */
+
     return true;
 }
 
@@ -98,6 +118,42 @@ bool Polygon::isCongruentTo(const Shape &another)
 
 bool Polygon::isSimilarTo(const Shape &another)
 {
+    const auto* pAnotherPolygon = dynamic_cast<const Polygon*>(std::addressof(another));
+    // Checking whether the shape is really a polygon
+    if (!pAnotherPolygon)
+    {
+        return false;
+    }
+
+    if (pAnotherPolygon->_vertices == _vertices)
+    {
+        return false;
+    }
+    if (pAnotherPolygon->_vertices.size() != _vertices.size())
+    {
+        return false;
+    }
+
+    std::vector<double> angles;
+    std::vector<double> anotherAngles;
+    // angel by 3 points
+
+    for (int i = 0; i < angles.size(); ++i)
+    {
+        if (angles[i] == anotherAngles[0])
+        {
+            std::rotate(angles.begin(), angles.begin()+i, angles.end());
+            std::rotate(_vertices.begin(), _vertices.begin()+i, _vertices.end());
+            // https://cplusplus.com/reference/algorithm/rotate/
+            break;
+        }
+    }
+    if (angles != anotherAngles)
+    {
+        return false;
+    }
+    float similarityСoefficient;
+    // DistanceBetweenPoints
 }
 
 bool Polygon::containsPoint(Point point)

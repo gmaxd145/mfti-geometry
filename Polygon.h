@@ -27,7 +27,7 @@ public:
     std::vector<Point> getVerticles() const;
 
 private:
-    std::vector<Point> vertices;
+    std::vector<Point> _vertices;
 };
 
 

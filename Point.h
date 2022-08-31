@@ -2,12 +2,14 @@
 #define MFTI_TASK4_GEOMETRY_POINT_H
 
 
-struct Point {
+struct Point
+{
+    friend bool operator==(const Point point1, const Point point2);
+    friend bool operator!=(const Point point1, const Point point2);
+
     double x;
     double y;
 
-    friend bool operator==(const Point point1, const Point point2);
-    friend bool operator!=(const Point point1, const Point point2);
 };
 
 

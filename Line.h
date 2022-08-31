@@ -14,8 +14,8 @@ public:
     friend bool operator!=(const Line line1, const Line line2);
 
 private:
-    double k;
-    double b;
+    double _k;
+    double _b;
 };
 
 
