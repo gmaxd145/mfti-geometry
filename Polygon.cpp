@@ -12,7 +12,7 @@ Polygon::Polygon(std::initializer_list<Point> vertices) : _vertices(vertices)
 {
 }
 
-double DistanceBetweenPoints(Point point1, Point point2)
+double DistBtwnPoints(Point point1, Point point2)
 {
     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
 }
@@ -22,7 +22,7 @@ double Polygon::perimeter() const
     double perimeter{};
     for (int i = 0; i < _vertices.size() - 1; ++i)
     {
-        perimeter += DistanceBetweenPoints(_vertices[i + 1], _vertices[i]);
+        perimeter += DistBtwnPoints(_vertices[i + 1], _vertices[i]);
     }
 
     return perimeter;
@@ -116,6 +116,22 @@ bool Polygon::isCongruentTo(const Shape &another)
     return (*this == another);
 }
 
+void PolygonAngles(std::vector<double>& angles, const std::vector<Point>& vertices)
+{
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        angles[i] = std::acos(
+                ((vertices[i].x - vertices[i + 1].x) * (vertices[i].x - vertices[i + 2].x)
+                +
+                (vertices[i].x - vertices[i + 1].x) * (vertices[i].x - vertices[i + 2].x))
+                /
+                (DistBtwnPoints(vertices[i], vertices[i + 1])
+                *
+                DistBtwnPoints(vertices[i], vertices[i + 2]))
+                );
+    }
+}
+
 bool Polygon::isSimilarTo(const Shape &another)
 {
     const auto* pAnotherPolygon = dynamic_cast<const Polygon*>(std::addressof(another));
@@ -136,7 +152,6 @@ bool Polygon::isSimilarTo(const Shape &another)
 
     std::vector<double> angles;
     std::vector<double> anotherAngles;
-    // angel by 3 points
 
     for (int i = 0; i < angles.size(); ++i)
     {
