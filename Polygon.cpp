@@ -4,12 +4,23 @@
 #include <exception>
 #include <algorithm>
 
+ void isPolygon(int verticesCount)
+ {
+     if (verticesCount < 3)
+     {
+         throw std::length_error("Not a polygon");
+     }
+ }
+
 Polygon::Polygon(std::vector<Point> vertices) : _vertices(std::move(vertices))
 {
+    isPolygon(_vertices.size());
 }
 
 Polygon::Polygon(std::initializer_list<Point> vertices) : _vertices(vertices)
 {
+    isPolygon(_vertices.size());
+
 }
 
 double DistBtwnPoints(Point point1, Point point2)
@@ -116,19 +127,38 @@ bool Polygon::isCongruentTo(const Shape &another)
     return (*this == another);
 }
 
+double calculateAngle(const std::vector<Point>& vertices, int i)
+{
+    return std::acos(
+                   ((vertices[i].x - vertices[(i + 1) % vertices.size()].x)
+                      * (vertices[i % vertices.size()].x - vertices[(i + 2) % vertices.size()].x)
+                      +
+                      (vertices[i % vertices.size()].x - vertices[(i + 1) % vertices.size()].x) * (vertices[i % vertices.size()].x - vertices[(i + 2) % vertices.size()].x))
+                      /
+                      (DistBtwnPoints(vertices[i % vertices.size()], vertices[(i + 1) % vertices.size()])
+                      *
+                      DistBtwnPoints(vertices[i % vertices.size()], vertices[(i + 2) % vertices.size()])));
+}
+
+/*
+ * % vertices.size()
+ *
+ * -1
+ * -1 0 1 -> 2 0 1
+ *
+ * 0
+ * 0 1 2
+ *
+ * 1
+ * 1 2 3 -> 1 2 0
+ *
+ * 1 < 2 = vertices.size() - 1
+ */
 void PolygonAngles(std::vector<double>& angles, const std::vector<Point>& vertices)
 {
-    for (int i = 0; i < vertices.size(); ++i)
+    for (int i = -1; i < vertices.size() - 1; ++i)
     {
-        angles[i] = std::acos(
-                ((vertices[i].x - vertices[i + 1].x) * (vertices[i].x - vertices[i + 2].x)
-                +
-                (vertices[i].x - vertices[i + 1].x) * (vertices[i].x - vertices[i + 2].x))
-                /
-                (DistBtwnPoints(vertices[i], vertices[i + 1])
-                *
-                DistBtwnPoints(vertices[i], vertices[i + 2]))
-                );
+        angles.push_back(calculateAngle(vertices, i));
     }
 }
 
@@ -152,6 +182,8 @@ bool Polygon::isSimilarTo(const Shape &another)
 
     std::vector<double> angles;
     std::vector<double> anotherAngles;
+    PolygonAngles(angles, _vertices);
+    PolygonAngles(anotherAngles, pAnotherPolygon->_vertices);
 
     for (int i = 0; i < angles.size(); ++i)
     {
@@ -167,8 +199,21 @@ bool Polygon::isSimilarTo(const Shape &another)
     {
         return false;
     }
-    float similarityСoefficient;
+
+    // calculate polygon sides
     // DistanceBetweenPoints
+//    double similarityСoefficient =  sides[0] / anotherSides[0];
+//    for (int i = 1;  i < _vertices.size(); ++i)
+//    {
+//        if (similarityСoefficient == sides[i] / anotherSides[i])
+//        {
+//            similarityСoefficient = sides[i] / anotherSides[i];
+//        }
+//        else
+//        {
+//            return false;
+//        }
+//    }
 }
 
 bool Polygon::containsPoint(Point point)
